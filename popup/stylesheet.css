@@ -8,3 +8,10 @@
     font-size: larger;
     color: black;
 }
+
+.pop_buttons {
+    width: 80px;
+    height: 20px;
+    background-color: lightblue;
+    border: black 1px;
+}
