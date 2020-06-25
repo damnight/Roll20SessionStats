@@ -1,0 +1,14 @@
+{
+
+    "manifest_version": 2,
+    "name": "Roll20SessionStats",
+    "version": "0.1",
+  
+    "description": "",
+    "homepage_url": "https://github.com/damnight/Roll20SessionStats",
+    
+    "permissions": [
+        "activeTab"
+      ]
+
+}
