@@ -1,0 +1,10 @@
+.body{
+    width: 200px;
+    height: 200px;
+}
+.tester {
+    display: block;
+    position: absolute;
+    font-size: larger;
+    color: black;
+}

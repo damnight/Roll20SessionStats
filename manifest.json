@@ -6,7 +6,16 @@
   
     "description": "",
     "homepage_url": "https://github.com/damnight/Roll20SessionStats",
-    
+    "icons": {
+        "48": "icons/test_icon.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "32":"icons/tool_icon.png"
+        },
+        "default_popup": "popup/sessionstats.html"
+    },
+
     "permissions": [
         "activeTab"
       ]
