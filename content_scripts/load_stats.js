@@ -1,3 +1,5 @@
+let for_loop_calls = 0;
+
 //console.log(content.document.getElementsByClass('message general'))
 (function() {
     //check if content script is already running, if so return => no duplicate runs
@@ -80,6 +82,7 @@
     });
     console.log(all_players)
     console.log(psych)
+    console.log(for_loop_calls)
 
 
     //evaluate session stats
@@ -98,23 +101,25 @@
 
 })();
 
+
 //
 function filter_rolls(msg) {
 
   var dice_rolls_temp = [];
 
   var el_array = get_span_el(msg);
-  //console.log(el_array);
+
   if(el_array == undefined){
     return 0;
   }
 
   el_array.forEach( el => {
-    if ( el == undefined) {
+    if ( el == undefined || el.length == 0 || el[0].className == "sheet-desc sheet-info") {
+      for_loop_calls++;
       return 0;
     }
     
-    console.log(el)
+    //console.log(el)
 
     //separately handle each meme
 
@@ -192,7 +197,6 @@ function filter_rolls(msg) {
 
       //handle sheet-solo
       else if (el[0].className == "sheet-solo"){
-        console.log(el)
         try {
         var d_count = el[0].lastElementChild.innerHTML.match(/Rolling ([0-9]+)/g)[0].match(/([0-9]+)/)[0];
         var d_type = el[0].lastElementChild.innerHTML.match(/d([0-9]+)\+/g)[0].match(/([0-9]+)/)[0];
@@ -208,19 +212,26 @@ function filter_rolls(msg) {
           
           var dr = parseInt(el[0].lastElementChild.innerHTML.match(/;>([0-9]+)<\/span>/g)[0].match(/([0-9]+)/)[0]);
           dice_rolls_temp.push([d1, dr])
+          //console.log([d1, dr], el)
         } catch (e) {}
 
       }//handle sheet-solo
 
       //handle sheet-desc
       else if (el[0].className == "sheet-desc"){
+        //higher lvl multiplier
+        var d_count_1 = el[0].childNodes[1].innerHTML.match(/Rolling (\([0-9]+)\*[0-9]+\)/g)[0].match(/([0-9]+)/)[0];
+        var d_count_2 = el[0].childNodes[1].innerHTML.match(/Rolling \([0-9]+\*([0-9]+\))/g)[0].match(/\*([0-9]+)/)[0].match(/([0-9]+)/)[0];
+        var d_count = d_count_1 * d_count_2;
+        var d_type = el[0].childNodes[1].innerHTML.match(/d([0-9]+)/g)[0].match(/([0-9]+)/)[0];
+        var d1 = d_count + 'd' + d_type;
+        var dr = parseInt(el[0].childNodes[1].innerHTML.match(/\">([0-9]+)<\/span>/g)[0].match(/([0-9]+)/)[0]);
+        dice_rolls_temp.push([d1, dr])
 
       }//handle sheet-desc
 
-
     }
   });//end for-each
-
   return dice_rolls_temp;
 }//end function
 
