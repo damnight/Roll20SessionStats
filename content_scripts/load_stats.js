@@ -14,6 +14,8 @@
     var cur_player;
     var cur_session_it = 0;
     var all_players = {};
+    var last_tm = 0;
+    var first_run = true;
 
     console.log(txt_content)
     console.log(all_players)
@@ -41,22 +43,31 @@
      */
        // console.log('pre sess', all_players[cur_player] , cur_player, all_players)
 
+        //if last_tm-cur_tm > 6h increase session mod for current msg
+        //check if msg has by attribute
+        if(msg.getElementsByClassName('tstamp').length > 0){
+          //get timestamp
+          var timestamp = msg.getElementsByClassName('tstamp')[0].innerHTML;
+          date = dateparser(timestamp)
+          //compare timestamp
+          console.log(date - last_tm)
+          if( (date - last_tm > 22000000) && !first_run){
+            cur_session_it++;
+          }
+
+          //set last_iteration_date
+          last_tm = date;
+        }//if msg.by exists
+
         //session modifier
         cur_session = String('session ' + cur_session_it);
+        first_run = false;
 
         if( !( cur_session in all_players[cur_player] )  ){
             all_players[cur_player][cur_session] = {};
             //console.log(all_players.players[in_cur_player])
         }
-        //check if msg has by attribute
-        if(msg.getElementsByClassName('tstamp').length > 0){
-                //get timestamp
-                var timestamp = msg.getElementsByClassName('tstamp')[0].innerHTML;
-                //console.log(timestamp)
-                date = dateparser(timestamp)
-                //all_players.players[in_cur_player]['date'].push(timestamp);
-                //console.log(date);
-        }//if msg.by exists
+
 
 
 
