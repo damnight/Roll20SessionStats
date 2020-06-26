@@ -11,16 +11,12 @@
     var txt_content = document.getElementById('textchat').getElementsByClassName('content')[0].childNodes;
     //console.log(txt_content[195])
     //sort messages by user and sessions
-    var in_cur_player
-    var cur_session
+    var cur_player;
+    var cur_session_it = 0;
     var all_players = {};
-    // all_players = '{"players":[ \
-    //                     {"playername: ""test", "session:""[ \
-    //                         {"0: ""[ \
-    //                             {"dice: ""1d6", "result: ""4"} \
-    //                         ]"}]"}],';
-    all_players.players = [];
+
     console.log(txt_content)
+    console.log(all_players)
 
     //console.log(txt_content);
     txt_content.forEach(msg => {
@@ -29,12 +25,13 @@
      */    
         //check if msg has by attribute
         if(msg.getElementsByClassName('by').length > 0){
-            
+
             //check if all_players already has player entry, if not, add it
-            if( !(Object.values(all_players.players).includes(msg.getElementsByClassName('by')[0].innerHTML)) ) {     
+            if( !(Object.values(all_players).includes(msg.getElementsByClassName('by')[0].innerHTML)) ) {     
                 //add player entry
-                all_players.players.push( msg.getElementsByClassName('by')[0].innerHTML );
-                in_cur_player = all_players.players.indexOf(msg.getElementsByClassName('by')[0].innerHTML);
+                all_players[msg.getElementsByClassName('by')[0].innerHTML] = {};
+                cur_player = msg.getElementsByClassName('by')[0].innerHTML;
+                
             }//if all_players has msg.by
 
         }//if msg.by exists
@@ -42,6 +39,15 @@
     /***
      * add session entry
      */
+       // console.log('pre sess', all_players[cur_player] , cur_player, all_players)
+
+        //session modifier
+        cur_session = String('session ' + cur_session_it);
+
+        if( !( cur_session in all_players[cur_player] )  ){
+            all_players[cur_player][cur_session] = {};
+            //console.log(all_players.players[in_cur_player])
+        }
         //check if msg has by attribute
         if(msg.getElementsByClassName('tstamp').length > 0){
                 //get timestamp
