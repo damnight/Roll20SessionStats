@@ -84,6 +84,16 @@ let for_loop_calls = 0;
     console.log(psych)
     console.log(for_loop_calls)
 
+    //test if rolls are mostly registered
+    //4005msg - 1112filteredout = 2893  rolls
+    // var i = 0;
+    // psych.forEach( ele => {
+    //   ele.forEach( le => {
+    //     i++;
+    //   });
+    // });
+    // console.log(i);
+    // it's kinda close I suppose, chat messages are not counted either, so I don't know the actual discrepancy, we'll find out tho (in beta)
 
     //evaluate session stats
 
@@ -306,10 +316,10 @@ function get_span_el(msg) {
     
     //outer try-catch
     } catch (e) {
+
       //console.log('something went wrong', e);
     }
 
-    
 }//end function
 
 //Date parser
