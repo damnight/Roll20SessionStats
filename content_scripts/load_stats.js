@@ -11,8 +11,9 @@
     var txt_content = document.getElementById('textchat').getElementsByClassName('content')[0].childNodes;
     //console.log(txt_content[195])
     //sort messages by user and sessions
-    var cur_player;
+    var cur_player = '';
     var cur_session_it = 0;
+    var cur_session = '';
     var all_players = {};
     var last_tm = 0;
     var first_run = true;
@@ -27,13 +28,12 @@
      */    
         //check if msg has by attribute
         if(msg.getElementsByClassName('by').length > 0){
+          cur_player = String(msg.getElementsByClassName('by')[0].innerHTML);
 
             //check if all_players already has player entry, if not, add it
-            if( !(Object.values(all_players).includes(msg.getElementsByClassName('by')[0].innerHTML)) ) {     
+            if( !(cur_player in all_players) ) {     
                 //add player entry
-                all_players[msg.getElementsByClassName('by')[0].innerHTML] = {};
-                cur_player = msg.getElementsByClassName('by')[0].innerHTML;
-                
+                all_players[cur_player] = {};
             }//if all_players has msg.by
 
         }//if msg.by exists
@@ -48,9 +48,9 @@
         if(msg.getElementsByClassName('tstamp').length > 0){
           //get timestamp
           var timestamp = msg.getElementsByClassName('tstamp')[0].innerHTML;
-          date = dateparser(timestamp)
+          var date = dateparser(timestamp)
           //compare timestamp
-          console.log(date - last_tm)
+          //console.log(date - last_tm)
           if( (date - last_tm > 22000000) && !first_run){
             cur_session_it++;
           }
@@ -60,12 +60,13 @@
         }//if msg.by exists
 
         //session modifier
-        cur_session = String('session ' + cur_session_it);
+        cur_session = String('session_' + cur_session_it);
         first_run = false;
-
         if( !( cur_session in all_players[cur_player] )  ){
-            all_players[cur_player][cur_session] = {};
-            //console.log(all_players.players[in_cur_player])
+          //console.log('add session', cur_player, cur_session)
+          all_players[cur_player][cur_session] = {};
+        } else {
+          all_players[cur_player][cur_session] = {"1": "assd" }
         }
 
 
