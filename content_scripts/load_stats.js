@@ -108,12 +108,14 @@ function filter_rolls(msg) {
     return 0;
   }
   
+  console.log(el)
+
   //seperately handle each meme
   if (el.length == 2){
     //NOTE these are always 1d20 rolls
     //get diceroll
-    var d1 = 20;
-    var d2 = 20;
+    var d1 = '1d20';
+    var d2 = '1d20';
 
     //get full diceroll results
     var dr1 = parseInt(el[0].firstElementChild.innerText);
@@ -128,12 +130,21 @@ function filter_rolls(msg) {
 
     dice_rolls_temp.push([d1, dr1])
     dice_rolls_temp.push([d2, dr2])
+  } else if (el.length == 1) {
+    //handle dicegrouping
+    if(el[0].className == "dicegrouping"){
+      var d_count = el[0].childElementCount;
+      var d_type = parseInt(el[0].firstElementChild.className.match(/(([0-9]+)?d([0-9]+))/g)[0].match(/[0-9]+/g)[0]);
+      var d1 = d_count + 'd' + d_type;
+      //TODO dice results
+      //dice_rolls_temp.push([d1, dr1])
+    }
+
   }
 
+
   return dice_rolls_temp;
-
-
-}
+}//end function
 
 
 //filter for span element containing the rolls
