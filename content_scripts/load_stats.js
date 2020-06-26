@@ -114,9 +114,11 @@ function filter_rolls(msg) {
       return 0;
     }
     
-    //console.log(el)
+    console.log(el)
 
-    //seperately handle each meme
+    //separately handle each meme
+
+    //handle sheet-adv | sheet-adv
     if ((el.length == 2) && (el[0].className == "sheet-adv") && (el[1].className == "sheet-adv")){
       //NOTE these are always 1d20 rolls
       //get diceroll
@@ -137,7 +139,9 @@ function filter_rolls(msg) {
       dice_rolls_temp.push([d1, dr1])
       dice_rolls_temp.push([d2, dr2])
 
+
     } else if (el.length == 1) {
+      
       //handle dicegrouping
       if(el[0].className == "dicegrouping"){
         //dice type
@@ -154,6 +158,7 @@ function filter_rolls(msg) {
         
         dice_rolls_temp.push([d1, dr1])
       }
+
       //handle sheet-damage
       else if(el[0].className == "sheet-damage"){
         //dice type
@@ -183,7 +188,34 @@ function filter_rolls(msg) {
           dice_rolls_temp.push([d1, dr1_int_t1]);
           dice_rolls_temp.push([d2, dr2_int_t2]);
         }
-      }
+      }//handle sheet-damage
+
+      //handle sheet-solo
+      else if (el[0].className == "sheet-solo"){
+        console.log(el)
+        try {
+        var d_count = el[0].lastElementChild.innerHTML.match(/Rolling ([0-9]+)/g)[0].match(/([0-9]+)/)[0];
+        var d_type = el[0].lastElementChild.innerHTML.match(/d([0-9]+)\+/g)[0].match(/([0-9]+)/)[0];
+        var d1 = d_count + 'd' + d_type;
+        
+        var dr = parseInt(el[0].lastElementChild.innerHTML.match(/>([0-9]+)<\/span>/g)[0].match(/([0-9]+)/)[0]);
+        dice_rolls_temp.push([d1, dr])
+        } catch (e) {}
+        try{
+          var d_count = el[0].lastElementChild.innerHTML.match(/Rolling {([0-9]+)/g)[0].match(/([0-9]+)/)[0];
+          var d_type = el[0].lastElementChild.innerHTML.match(/d([0-9]+),/g)[0].match(/([0-9]+)/)[0];
+          var d1 = d_count + 'd' + d_type;
+          
+          var dr = parseInt(el[0].lastElementChild.innerHTML.match(/;>([0-9]+)<\/span>/g)[0].match(/([0-9]+)/)[0]);
+          dice_rolls_temp.push([d1, dr])
+        } catch (e) {}
+
+      }//handle sheet-solo
+
+      //handle sheet-desc
+      else if (el[0].className == "sheet-desc"){
+
+      }//handle sheet-desc
 
 
     }
