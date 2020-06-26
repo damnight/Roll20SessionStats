@@ -17,6 +17,7 @@
     var all_players = {};
     var last_tm = 0;
     var first_run = true;
+    var psych;
 
     console.log(txt_content)
     console.log(all_players)
@@ -64,21 +65,21 @@
         first_run = false;
         if( !( cur_session in all_players[cur_player] )  ){
           //console.log('add session', cur_player, cur_session)
-          all_players[cur_player][cur_session] = {};
-        } else {
-          all_players[cur_player][cur_session] = {"1": "assd" }
+          all_players[cur_player][cur_session] = [{}];
         }
 
+        //filter rolls and add them to the session
+        //all_players[cur_player][cur_session].push( filterRolls(msg) )
 
 
 
 
+        psych = filterRolls(msg)
     });
-
     console.log(all_players)
-    var d1 = dateparser('June 17, 2020 11:55PM');
-    var d2 = dateparser('June 17, 2020 5:55PM');
-    console.log(d1 - d2)
+    console.log(psych)
+
+
     //evaluate session stats
 
 
@@ -97,6 +98,28 @@
   });
 
 })();
+
+//Filter Rolls
+function filterRolls(msg){
+  console.log('filter rolls')
+  //find atk roll and dice
+  //returns pair (adv-roll) of divs, span inside these have the rolls
+  var solo_roll_dmg = msg.getElementsByClassName('sheet-rolltemplate-dmg').getElementsByClassName('sheet-container sheet-damagetemplate').getElementsByClassName('sheet-result').getElementsByClassName('sheet-solo').getElementsByClassName('sheet-damage');
+  var adv_roll_dmg = msg.getElementsByClassName('sheet-rolltemplate-dmg').getElementsByClassName('sheet-container sheet-damagetemplate').getElementsByClassName('sheet-result').getElementsByClassName('sheet-adv').getElementsByClassName('sheet-damage');
+  var adv_roll_atk = msg.getElementsByClassName('sheet-rolltemplate-atk').getElementsByClassName('sheet-container').getElementsByClassName('sheet-result').getElementsByClassName('sheet-adv');
+  var solo_roll_simp = msg.getElementsByClassName('sheet-rolltemplate-simple').getElementsByClassName('sheet-container').getElementsByClassName('sheet-result').getElementsByClassName('sheet-solo');
+  var adv_roll_simp = msg.getElementsByClassName('sheet-rolltemplate-simple').getElementsByClassName('sheet-container').getElementsByClassName('sheet-result').getElementsByClassName('sheet-adv');
+  var adv_roll_desc = msg.getElementsByClassName('sheet-rolltemplate-dmg').getElementsByClassName('sheet-desc');
+  //div not span
+  var formula_roll = msg.getElementsByClassName('formula formattedformula').getElementsByClassName('dicegrouping');
+  //console.log(adv_roll);
+  
+  
+  
+  
+  
+  return adv_roll;
+}
 
 //Date parser
 //Format: June 17, 2020 6:55PM
