@@ -103,45 +103,91 @@ function filter_rolls(msg) {
 
   var dice_rolls_temp = [];
 
-  var el = get_span_el(msg);
-  if ( el == undefined) {
+  var el_array = get_span_el(msg);
+  //console.log(el_array);
+  if(el_array == undefined){
     return 0;
   }
-  
-  console.log(el)
 
-  //seperately handle each meme
-  if (el.length == 2){
-    //NOTE these are always 1d20 rolls
-    //get diceroll
-    var d1 = '1d20';
-    var d2 = '1d20';
-
-    //get full diceroll results
-    var dr1 = parseInt(el[0].firstElementChild.innerText);
-    var dr2 = parseInt(el[1].firstElementChild.innerText);
-
-    //get basic dice roll
-    var str1 = el[0].firstElementChild.firstChild.attributes[1].textContent.match(/">([0-9]+)<\/span>\)/g);
-    var dr1 = parseInt(str1[0].match(/([0-9]+)/g));
-
-    var str2 = el[1].firstElementChild.firstChild.attributes[1].textContent.match(/">([0-9]+)<\/span>\)/g);
-    var dr2 = parseInt(str2[0].match(/([0-9]+)/g));
-
-    dice_rolls_temp.push([d1, dr1])
-    dice_rolls_temp.push([d2, dr2])
-  } else if (el.length == 1) {
-    //handle dicegrouping
-    if(el[0].className == "dicegrouping"){
-      var d_count = el[0].childElementCount;
-      var d_type = parseInt(el[0].firstElementChild.className.match(/(([0-9]+)?d([0-9]+))/g)[0].match(/[0-9]+/g)[0]);
-      var d1 = d_count + 'd' + d_type;
-      //TODO dice results
-      //dice_rolls_temp.push([d1, dr1])
+  el_array.forEach( el => {
+    if ( el == undefined) {
+      return 0;
     }
+    
+    //console.log(el)
 
-  }
+    //seperately handle each meme
+    if ((el.length == 2) && (el[0].className == "sheet-adv") && (el[1].className == "sheet-adv")){
+      //NOTE these are always 1d20 rolls
+      //get diceroll
+      var d1 = '1d20';
+      var d2 = '1d20';
 
+      //get full diceroll results
+      var dr1 = parseInt(el[0].firstElementChild.innerText);
+      var dr2 = parseInt(el[1].firstElementChild.innerText);
+
+      //get basic dice roll
+      var str1 = el[0].firstElementChild.firstChild.attributes[1].textContent.match(/">([0-9]+)<\/span>\)/g);
+      var dr1 = parseInt(str1[0].match(/([0-9]+)/g));
+
+      var str2 = el[1].firstElementChild.firstChild.attributes[1].textContent.match(/">([0-9]+)<\/span>\)/g);
+      var dr2 = parseInt(str2[0].match(/([0-9]+)/g));
+
+      dice_rolls_temp.push([d1, dr1])
+      dice_rolls_temp.push([d2, dr2])
+
+    } else if (el.length == 1) {
+      //handle dicegrouping
+      if(el[0].className == "dicegrouping"){
+        //dice type
+        var d_count = el[0].childElementCount;
+        var d_type = parseInt(el[0].firstElementChild.className.match(/(([0-9]+)?d([0-9]+))/g)[0].match(/[0-9]+/g)[0]);
+        var d1 = d_count + 'd' + d_type;
+
+        //dice results
+        var dr1_raw = el[0].innerText.match(/[0-9]+/g)
+        var dr1_int = [];
+        var dr1 = 0;
+        dr1_raw.forEach( (i) => dr1_int.push( parseInt(i)) );
+        dr1_int.forEach( (i) => dr1+= i);
+        
+        dice_rolls_temp.push([d1, dr1])
+      }
+      //handle sheet-damage
+      else if(el[0].className == "sheet-damage"){
+        //dice type
+        var d_count = parseInt(el[0].childNodes[0].attributes[1].textContent.match(/(Rolling [0-9]+)/g)[0].match(/([0-9]+)/)[0]);
+        var d_type = parseInt(el[0].childNodes[0].attributes[1].textContent.match(/(d[0-9]+)/g)[0].match(/([0-9]+)/)[0]);
+        var d1 = d_count + 'd' + d_type;
+
+        //dice results
+        var dr1_raw = el[0].childNodes[0].attributes[1].textContent.match(/">([0-9]+)<\/span>\)/g);
+        if ((dr1_raw != null) && (dr1_raw.length == 1)){
+          var dr1_int = parseInt(dr1_raw[0].match(/([0-9]+)/g));
+        } else if (dr1_raw.length == 2) {
+          //dice type
+          var d1_count = parseInt(el[0].childNodes[0].attributes[1].textContent.match(/(Rolling [0-9]+)/g)[0].match(/([0-9]+)/)[0]);
+          var d1_type = parseInt(el[0].childNodes[0].attributes[1].textContent.match(/(d[0-9]+\+)/g)[0].match(/([0-9]+)/)[0]);
+
+          var d2_count = parseInt(el[0].childNodes[0].attributes[1].textContent.match(/\+([0-9]+)d[0-9]+/g));
+          var d2_type = parseInt(el[0].childNodes[0].attributes[1].textContent.match(/\+[0-9]+d([0-9]+)/g)[0].match(/d([0-9]+)/)[1]);
+
+          var d1 = d1_count + 'd' + d1_type;
+          var d2 = d2_count + 'd' + d2_type;
+          
+          //dice count
+          var dr1_int_t1 = parseInt(dr1_raw[0].match(/([0-9]+)/g));
+          var dr2_int_t2 = parseInt(dr1_raw[1].match(/([0-9]+)/g));
+
+          dice_rolls_temp.push([d1, dr1_int_t1]);
+          dice_rolls_temp.push([d2, dr2_int_t2]);
+        }
+      }
+
+
+    }
+  });//end for-each
 
   return dice_rolls_temp;
 }//end function
@@ -152,45 +198,56 @@ function get_span_el(msg) {
   //console.log('filter rolls')
   //find atk roll and dice
   //returns pair (adv-roll) of divs, span inside these have the rolls
+  var adv_roll_dmg = [];
+  var adv_roll_atk = [];
+  var adv_roll_desc = [];
+  var adv_roll_simp = [];
+  var formula_roll = [];
+  var solo_roll_simp = [];
+
+
+
+
   try {
 
     try { 
-    var solo_roll_dmg = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-container sheet-damagetemplate')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-solo')[0].getElementsByClassName('sheet-damage'); 
+    solo_roll_dmg[0] = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-container sheet-damagetemplate')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-solo')[0].getElementsByClassName('sheet-damage'); 
     return solo_roll_dmg;
     } catch (e) {
       //console.log(e)
     }
 
     try {
-    var adv_roll_dmg = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-container sheet-damagetemplate')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv')[0].getElementsByClassName('sheet-damage');
+    adv_roll_dmg[0] = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-container sheet-damagetemplate')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv')[0].getElementsByClassName('sheet-damage');
+    adv_roll_dmg[1] = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-container sheet-damagetemplate')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv')[1].getElementsByClassName('sheet-damage');
     return adv_roll_dmg;
     } catch (e) {
       //console.log(e)
     }
 
     try {
-    var adv_roll_atk = msg.getElementsByClassName('sheet-rolltemplate-atk')[0].getElementsByClassName('sheet-container')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv');
+    adv_roll_atk[0] = msg.getElementsByClassName('sheet-rolltemplate-atk')[0].getElementsByClassName('sheet-container')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv');
     return adv_roll_atk;
     } catch (e) {
       //console.log(e)
     }
     
     try {
-    var solo_roll_simp = msg.getElementsByClassName('sheet-rolltemplate-simple')[0].getElementsByClassName('sheet-container')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-solo');
+    solo_roll_simp[0] = msg.getElementsByClassName('sheet-rolltemplate-simple')[0].getElementsByClassName('sheet-container')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-solo');
     return solo_roll_simp;
     } catch (e) {
       //console.log(e)
     }
     
     try {
-    var adv_roll_simp = msg.getElementsByClassName('sheet-rolltemplate-simple')[0].getElementsByClassName('sheet-container')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv');
+    adv_roll_simp[0] = msg.getElementsByClassName('sheet-rolltemplate-simple')[0].getElementsByClassName('sheet-container')[0].getElementsByClassName('sheet-result')[0].getElementsByClassName('sheet-adv');
     return adv_roll_simp;
     } catch (e) {
       //console.log(e)
     }
     
     try {
-    var adv_roll_desc = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-desc');
+    adv_roll_desc[0] = msg.getElementsByClassName('sheet-rolltemplate-dmg')[0].getElementsByClassName('sheet-desc');
     return adv_roll_desc;
     } catch (e) {
       //console.log(e)
@@ -198,7 +255,7 @@ function get_span_el(msg) {
     
     //div not span
     try {
-    var formula_roll = msg.getElementsByClassName('formula formattedformula')[0].getElementsByClassName('dicegrouping');
+    formula_roll[0] = msg.getElementsByClassName('formula formattedformula')[0].getElementsByClassName('dicegrouping');
     return formula_roll;
     } catch (e) {
       //console.log(e)
