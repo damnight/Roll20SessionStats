@@ -67,17 +67,25 @@ let for_loop_calls = 0;
         first_run = false;
         if( !( cur_session in all_players[cur_player] )  ){
           //console.log('add session', cur_player, cur_session)
-          all_players[cur_player][cur_session] = [{}];
+          all_players[cur_player][cur_session] = [];
         }
 
         //filter rolls and add them to the session
         //get rolls and add only valid message rolls to stack
+        //DEBUG psych.push()
         var roll = filter_rolls(msg)
         if (roll == 0) { 
           //console.log('0')
         } else { 
-          psych.push(roll);
+          psych.push(roll);//debug
+          //console.log(roll)
+          roll.forEach( r => {
+            all_players[cur_player][cur_session].push(r);
+          });
         }
+
+
+
 
     });
     console.log(all_players)
